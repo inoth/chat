@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"chat/request"
+	"chat/src/request"
 	"errors"
 	"math/rand"
 
@@ -12,6 +12,11 @@ import (
 	"github.com/inoth/toybox/utils/encrypt"
 	jwtauth "github.com/inoth/toybox/utils/jwt_auth"
 )
+
+func getAvatar() string {
+	avatars := config.Cfg.GetStringSlice("base.avatars")
+	return avatars[rand.Int()%len(avatars)]
+}
 
 func Login(c *gin.Context) {
 	req, ok := middleware.RequestJsonParamHandler[request.LoginRequest](c)
@@ -40,9 +45,4 @@ func Login(c *gin.Context) {
 		}
 	}
 	res.ResultErr(c, res.ParamErrorCode, errors.New("账号密码错误"))
-}
-
-func getAvatar() string {
-	avatars := config.Cfg.GetStringSlice("base.avatars")
-	return avatars[rand.Int()%len(avatars)]
 }
