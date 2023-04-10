@@ -27,5 +27,5 @@ func (WsRouter) Prefix() string {
 	return "ws/v1"
 }
 func (WsRouter) LoadRouter(r *gin.RouterGroup) {
-
+	r.GET("/", col.ConnectionUpgrade)
 }
