@@ -1,0 +1,31 @@
+<mxfile host="65bd71144e">
+    <diagram id="SwgGi_zUobMQvnV78bBD" name="第 1 页">
+        <mxGraphModel dx="883" dy="717" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="服务&lt;br&gt;&lt;br&gt;生命周期流程如下&lt;br&gt;&lt;br&gt;检查服务依赖组件&lt;br&gt;检查服务依赖服务&lt;br&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1ba1e2;fontColor=#ffffff;strokeColor=#006EAF;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="105" width="150" height="270" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="组件&lt;br&gt;&lt;br&gt;组件保持独立性，不依赖其他组件&lt;br&gt;&lt;br&gt;组件装载器负责进行配置文件装载，并进行关键配置校验" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="105" width="240" height="225" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="服务发现&lt;br&gt;+&lt;br&gt;服务网关节点&lt;br&gt;&lt;br&gt;进行服务心跳检查&lt;br&gt;服务更新感知&lt;br&gt;&lt;br&gt;检查服务依赖组件&lt;br&gt;检查服务依赖服务&lt;br&gt;&lt;br&gt;解析用户信息&lt;br&gt;用户登录状态保存&lt;br&gt;用户请求" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontColor=#000000;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="400" width="150" height="270" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="公共函数工具库" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6d8764;strokeColor=#3A5431;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="410" width="240" height="260" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="6" target="8">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="启动" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="200" y="840" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="初始化组件" style="whiteSpace=wrap;html=1;rounded=1;" vertex="1" parent="1">
+                    <mxGeometry x="200" y="980" width="120" height="60" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

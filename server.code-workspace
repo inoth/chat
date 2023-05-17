@@ -4,7 +4,12 @@
 			"path": "./server"
 		}
 	],
-	"settings": {},
+	"settings": {
+		"files.exclude": {
+			".idea": true,
+			"go.sum": true
+		}
+	},
 	"launch": {
 		"version": "0.2.0",
 		"configurations": [
