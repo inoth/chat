@@ -7,7 +7,6 @@ import (
 	"chat/toybox/components/config"
 	"chat/toybox/components/mysql"
 	"chat/toybox/components/redis"
-	"fmt"
 	"os"
 	"testing"
 )
@@ -21,6 +20,4 @@ func TestNewToyBox(t *testing.T) {
 	)
 
 	tb.Run()
-
-	fmt.Printf("%+v", tb)
 }
