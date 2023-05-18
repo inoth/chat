@@ -33,8 +33,8 @@ type RedisComponents struct {
 	URLs        []string `toml:"urls" json:"urls" yaml:"urls"`
 	Username    string   `toml:"username" json:"username" yaml:"username"`
 	Password    string   `toml:"password" json:"password" yaml:"password"`
-	PoolSize    int      `toml:"poolsize" json:"poolsize" yaml:"poolsize"`
-	PoolTimeout int      `toml:"pooltimeout" json:"pooltimeout" yaml:"pooltimeout"`
+	PoolSize    int      `toml:"pool_size" json:"pool_size" yaml:"pool_size"`
+	PoolTimeout int      `toml:"pool_time_out" json:"pool_time_out" yaml:"pool_time_out"`
 }
 
 func (rc *RedisComponents) Name() string {

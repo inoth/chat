@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"chat/apps/chat/controller"
 	"chat/toybox/server"
 
 	"github.com/gin-gonic/gin"
@@ -12,8 +13,9 @@ var (
 )
 
 type ChatServer struct {
-	ServerName         string
-	Port               string
+	ServerName string
+	Port       string
+	// 依赖组件
 	RequiredComponents []string
 }
 
@@ -22,7 +24,7 @@ func init() {
 		return &ChatServer{
 			ServerName:         serverName,
 			Port:               ":9978",
-			RequiredComponents: []string{"redis"},
+			RequiredComponents: []string{"config", "redis", "mysql"},
 		}
 	})
 }
@@ -42,7 +44,7 @@ func (cs *ChatServer) Start() error {
 		chat.GET("heartbeat", func(ctx *gin.Context) { ctx.String(200, "") })
 	}
 	{ // business
-
+		chat.POST("login", controller.Login)
 	}
 	r.Run(cs.Port)
 	return nil
