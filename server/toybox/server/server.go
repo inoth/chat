@@ -1,8 +1,9 @@
-package toybox
+package server
 
 type ServerOption func(sv Server)
 
 type Server interface {
-	Init() error
+	Name() string
+	RequiredComponent() []string
 	Start() error
 }

@@ -1,7 +1,9 @@
 package redis
 
 import (
+	"chat/toybox/component"
 	"context"
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -10,9 +12,9 @@ import (
 )
 
 var (
-	// componentName = "redis"
-	redisOnce sync.Once
-	Redis     *RedisComponents
+	componentName = "redis"
+	redisOnce     sync.Once
+	Redis         *RedisComponents
 )
 
 // func init() {
@@ -20,6 +22,10 @@ var (
 // 		return &RedisComponents{}
 // 	})
 // }
+
+func New() component.Component {
+	return &RedisComponents{}
+}
 
 type RedisComponents struct {
 	client *gredis.ClusterClient
@@ -29,6 +35,15 @@ type RedisComponents struct {
 	Password    string   `toml:"password" json:"password" yaml:"password"`
 	PoolSize    int      `toml:"poolsize" json:"poolsize" yaml:"poolsize"`
 	PoolTimeout int      `toml:"pooltimeout" json:"pooltimeout" yaml:"pooltimeout"`
+}
+
+func (rc *RedisComponents) Name() string {
+	return componentName
+}
+
+func (rc *RedisComponents) String() string {
+	buf, _ := json.Marshal(rc)
+	return string(buf)
 }
 
 func (rc *RedisComponents) Close() error { return rc.client.Close() }
@@ -49,6 +64,7 @@ func (rc *RedisComponents) Init() (err error) {
 		}
 		rc.client = client
 		Redis = rc
+		fmt.Println("redis component initialization successful")
 	})
 	return
 }

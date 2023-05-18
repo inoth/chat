@@ -1,8 +1,6 @@
-package apps
+package server
 
-import "chat/toybox"
-
-type Creator func() toybox.Server
+type Creator func() Server
 
 var Servers map[string]Creator = make(map[string]Creator)
 

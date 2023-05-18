@@ -1,40 +1,43 @@
 package chat
 
 import (
-	"chat/apps"
-	"chat/toybox"
+	"chat/toybox/server"
 
 	"github.com/gin-gonic/gin"
 )
 
 var (
 	serverName = "chat"
+	ver        = "v1"
 )
 
 type ChatServer struct {
-	ServerName          string
-	Port                string
-	DependentComponents []string
-
-	// controllers []func(ctx *gin.Context)
+	ServerName         string
+	Port               string
+	RequiredComponents []string
 }
 
 func init() {
-	apps.Add(serverName, func() toybox.Server {
+	server.Add(serverName, func() server.Server {
 		return &ChatServer{
-			Port:                ":9978",
-			DependentComponents: []string{"config", "redis", "mysql"},
+			ServerName:         serverName,
+			Port:               ":9978",
+			RequiredComponents: []string{"redis"},
 		}
 	})
 }
 
-func (cs *ChatServer) Init() error {
-	return nil
+func (cs *ChatServer) Name() string {
+	return serverName
+}
+
+func (cs *ChatServer) RequiredComponent() []string {
+	return cs.RequiredComponents
 }
 
 func (cs *ChatServer) Start() error {
 	r := gin.New()
-	chat := r.Group(cs.ServerName)
+	chat := r.Group(cs.ServerName + "/" + ver)
 	{ // heartbeat
 		chat.GET("heartbeat", func(ctx *gin.Context) { ctx.String(200, "") })
 	}

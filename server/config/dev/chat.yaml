@@ -1,4 +1,0 @@
-pipline:
-  - jsonparse
-  - selecttarget
-  - output
