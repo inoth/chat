@@ -2,6 +2,8 @@ package chat
 
 import (
 	"chat/apps/chat/controller"
+	"chat/apps/chat/middleware"
+	"chat/toybox/res"
 	"chat/toybox/server"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +26,7 @@ func init() {
 		return &ChatServer{
 			ServerName:         serverName,
 			Port:               ":9978",
-			RequiredComponents: []string{"config", "redis", "mysql"},
+			RequiredComponents: []string{},
 		}
 	})
 }
@@ -40,11 +42,18 @@ func (cs *ChatServer) RequiredComponent() []string {
 func (cs *ChatServer) Start() error {
 	r := gin.New()
 	chat := r.Group(cs.ServerName + "/" + ver)
+	chat.Use(
+		middleware.GetLoginStatus(),
+	)
 	{ // heartbeat
 		chat.GET("heartbeat", func(ctx *gin.Context) { ctx.String(200, "") })
 	}
 	{ // business
 		chat.POST("login", controller.Login)
+
+		chat.GET("user", func(c *gin.Context) {
+			res.OK(c, "user api")
+		})
 	}
 	r.Run(cs.Port)
 	return nil
