@@ -59,7 +59,6 @@ func (tb *ToyBox) Run() {
 		panic(err)
 	}
 
-	// 获取从服务注册列表获取服务
 	tb.initComponents()
 
 	// 加载服务信息
@@ -68,7 +67,6 @@ func (tb *ToyBox) Run() {
 		panic(err)
 	}
 
-	// TODO 开始跑服务
 	for _, svc := range tb.servers {
 		go func(svc server.Server) {
 			fmt.Printf("server %v is up and running\n", svc.Name())
