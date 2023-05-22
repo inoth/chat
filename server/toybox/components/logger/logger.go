@@ -14,6 +14,6 @@ type ToyBoxLogger interface {
 	Warn(args ...interface{})
 	Warnf(msg string, args ...interface{})
 
-	Err(args ...interface{})
-	Errf(msg string, args ...interface{})
+	Error(args ...interface{})
+	Errorf(msg string, args ...interface{})
 }

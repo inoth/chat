@@ -70,3 +70,19 @@ func GetCurrentUserName(c *gin.Context) string {
 	}
 	return id
 }
+
+func GetCurrentAvatar(c *gin.Context) string {
+	user, ok := c.Get("user_info")
+	if !ok {
+		return ""
+	}
+	u, ok := user.(map[string]interface{})
+	if !ok {
+		return ""
+	}
+	id, ok := common.GetStringValue(u, "avatar")
+	if !ok {
+		return ""
+	}
+	return id
+}

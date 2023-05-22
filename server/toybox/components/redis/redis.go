@@ -14,7 +14,7 @@ import (
 var (
 	componentName = "redis"
 	redisOnce     sync.Once
-	Redis         *RedisComponents
+	Rdc           *RedisComponents
 )
 
 // func init() {
@@ -63,7 +63,7 @@ func (rc *RedisComponents) Init() (err error) {
 			return
 		}
 		rc.client = client
-		Redis = rc
+		Rdc = rc
 		fmt.Println("redis component initialization successful")
 	})
 	return

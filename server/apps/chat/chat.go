@@ -3,7 +3,6 @@ package chat
 import (
 	"chat/apps/chat/controller"
 	"chat/apps/chat/middleware"
-	"chat/toybox/res"
 	"chat/toybox/server"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +25,7 @@ func init() {
 		return &ChatServer{
 			ServerName:         serverName,
 			Port:               ":9978",
-			RequiredComponents: []string{},
+			RequiredComponents: []string{"config", "logger", "mysql"},
 		}
 	})
 }
@@ -39,21 +38,39 @@ func (cs *ChatServer) RequiredComponent() []string {
 	return cs.RequiredComponents
 }
 
+func (cs *ChatServer) Close() error { return nil }
+
 func (cs *ChatServer) Start() error {
 	r := gin.New()
-	chat := r.Group(cs.ServerName + "/" + ver)
-	chat.Use(
-		middleware.GetLoginStatus(),
-	)
 	{ // heartbeat
-		chat.GET("heartbeat", func(ctx *gin.Context) { ctx.String(200, "") })
+		r.GET("heartbeat", func(ctx *gin.Context) { ctx.String(200, "") })
 	}
-	{ // business
-		chat.POST("login", controller.Login)
 
-		chat.GET("user", func(c *gin.Context) {
-			res.OK(c, "user api")
-		})
+	chat := r.Group(cs.ServerName + "/" + ver)
+	{ // business
+		chat.Use(
+			middleware.GetLoginStatus(),
+		)
+		chat.POST("login", controller.Login)
+	}
+	user := chat.Group("user")
+	{
+		user.GET("", controller.GetUser)
+	}
+	room := chat.Group("room")
+	{
+		room.POST("", controller.CreateRoom)
+		room.PATCH("", controller.UpdateRoom)
+		room.GET("/:roomId", controller.GetRoom)
+		room.GET("", controller.GetRoomList)
+
+		room.POST("/join", controller.JoinRoom)
+		room.POST("/exit", controller.ExitRoom)
+	}
+	ws := chat.Group("ws")
+	{
+		// 直接加入ws连接，同时分配默认room
+		ws.GET("", controller.ConnectUpgrade)
 	}
 	r.Run(cs.Port)
 	return nil

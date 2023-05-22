@@ -17,5 +17,3 @@ func GetUser(c *gin.Context) {
 	}
 	res.OK(c, "ok", user)
 }
-
-func GetUserList(c *gin.Context) {}

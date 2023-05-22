@@ -30,7 +30,7 @@ type ConfigComponent struct {
 	count      int
 	context    context.Context
 	cancelFunc context.CancelFunc
-	m          *sync.RWMutex
+	m          sync.RWMutex
 
 	Interval int    `toml:"interval" json:"interval" yaml:"interval"`
 	CfgPath  string `toml:"cfgPath" json:"cfgPath" yaml:"cfgPath"`
@@ -44,7 +44,7 @@ type ConfigComponent struct {
 func New(opts ...Option) component.Component {
 	cfg := &ConfigComponent{
 		count:     1,
-		m:         new(sync.RWMutex),
+		m:         sync.RWMutex{},
 		appConfig: make(map[string]interface{}),
 	}
 

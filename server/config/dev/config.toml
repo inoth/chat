@@ -2,4 +2,4 @@
 
 interval = 10
 
-cfgPath = "config/dev/global.toml"
+cfgPath = "../config/dev/global.toml"

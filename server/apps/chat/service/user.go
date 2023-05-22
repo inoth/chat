@@ -19,3 +19,5 @@ func GetUserInfo(userId string) (*model.UserInfo, error) {
 	}
 	return user, nil
 }
+
+func GetUserInfoListByIds(ids []string) {}
