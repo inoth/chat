@@ -15,6 +15,7 @@ import (
 
 var (
 	serverName = "chathub"
+	hub        *ChatHubServer
 )
 
 type ChatHubServer struct {
@@ -46,11 +47,19 @@ func init() {
 			unregister:         make(chan *Client),
 			broadcastInput:     make(chan []byte, 100),
 			broadcastOutput:    make(chan message.MessageBox, 100),
-			RequiredComponents: []string{"config", "logger", "mysql"},
+			RequiredComponents: []string{"config", "logger"},
 		}
 		cs.ctx, cs.cancel = context.WithCancel(context.Background())
 		return cs
 	})
+}
+
+func GetChatHub() *ChatHubServer {
+	return hub
+}
+
+func (cs *ChatHubServer) init() {
+	hub = cs
 }
 
 func (cs *ChatHubServer) Name() string { return serverName }
@@ -111,6 +120,9 @@ func (cs *ChatHubServer) loadOutput() error {
 }
 
 func (cs *ChatHubServer) Start() error {
+	// 保存一份到全局中，后续client注册使用
+	cs.init()
+
 	err := cs.loadProcess()
 	if err != nil {
 		return err
@@ -120,12 +132,13 @@ func (cs *ChatHubServer) Start() error {
 		return err
 	}
 
-	cs.runPipline()
+	// 消息处理管道
+	go cs.runPipline()
 
 	for {
 		select {
 		case <-cs.ctx.Done():
-			return fmt.Errorf("chathub services ended")
+			return fmt.Errorf("chathub services end")
 		case reg := <-cs.register:
 			err = cs.joinClients(reg)
 			if err != nil {
@@ -141,22 +154,9 @@ func (cs *ChatHubServer) Start() error {
 		case body := <-cs.broadcastOutput:
 			for _, target := range body.Targets() {
 				if _, ok := cs.clients[target]; ok {
-					cs.clients[target].send <- body.MessageBody()
+					cs.clients[target].send <- body.String()
 				}
 			}
 		}
 	}
-}
-
-func (cs *ChatHubServer) runPipline() {
-	go func() {
-		// 初始化 process
-		// 初始化 output
-		select {
-		case <-cs.ctx.Done():
-			return
-		default:
-		}
-
-	}()
 }

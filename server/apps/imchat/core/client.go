@@ -38,12 +38,13 @@ type Client struct {
 	send chan []byte
 }
 
-func New(hub *ChatHubServer, w http.ResponseWriter, r *http.Request) (*Client, error) {
+func NewClient(uid string, hub *ChatHubServer, w http.ResponseWriter, r *http.Request) (*Client, error) {
 	wsConn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return nil, err
 	}
 	c := &Client{
+		Id:   uid,
 		hub:  hub,
 		conn: wsConn,
 		send: make(chan []byte),

@@ -25,7 +25,7 @@ func init() {
 		return &ChatServer{
 			ServerName:         serverName,
 			Port:               ":9978",
-			RequiredComponents: []string{"config", "logger", "mysql"},
+			RequiredComponents: []string{"config", "logger"},
 		}
 	})
 }
@@ -67,7 +67,7 @@ func (cs *ChatServer) Start() error {
 		room.POST("/join", controller.JoinRoom)
 		room.POST("/exit", controller.ExitRoom)
 	}
-	ws := chat.Group("ws")
+	ws := r.Group("ws")
 	{
 		// 直接加入ws连接，同时分配默认room
 		ws.GET("", controller.ConnectUpgrade)

@@ -1,3 +1,9 @@
 [global]
 
 jwt_key = "BA5ktbKaV47uOcQpnuUT76GvBRYpMdHX"
+
+# 消息处理列表，通过配置确定顺序
+chat_process = [
+    "jsonParser", # json解析
+    "msgType" # 分辨消息类型
+]

@@ -2,7 +2,9 @@ package parser
 
 import (
 	"chat/apps/imchat"
+	"chat/apps/imchat/message"
 	"chat/apps/imchat/pipline/process"
+	"fmt"
 )
 
 type JsonParser struct {
@@ -14,6 +16,7 @@ func init() {
 	})
 }
 
-func (jp *JsonParser) Process() error {
-	return nil
+func (jp *JsonParser) Process(msg message.MessageBox) (message.MessageBox, error) {
+	fmt.Println("这里来解析消息bytes")
+	return msg, nil
 }
