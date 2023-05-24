@@ -3,9 +3,6 @@ package core
 import (
 	"chat/apps/imchat"
 	"chat/apps/imchat/message"
-	"chat/apps/imchat/pipline/output"
-	"chat/apps/imchat/pipline/process"
-	"chat/toybox/components/config"
 	"chat/toybox/components/logger"
 	"fmt"
 	"sync"
@@ -24,7 +21,7 @@ type processorUnit struct {
 
 type inputUnit struct {
 	dst   chan<- message.MessageBox
-	input <-chan []byte
+	input <-chan message.MessageBox
 }
 
 func (cs *ChatHubServer) runPipline() {
@@ -60,30 +57,24 @@ func (cs *ChatHubServer) startOutput() (chan<- message.MessageBox, *outputUnit) 
 	out := outputUnit{
 		src: src,
 	}
-	for name, output := range output.Outputs {
-		out.Output = append(out.Output, output())
-		fmt.Printf("msg pipline load msg out %v\n", name)
+	for _, output := range cs.msgoutput {
+		out.Output = append(out.Output, output)
+		fmt.Printf("msg pipline load msg out %v\n", output.Name())
 	}
 	return src, &out
 }
 
 func (cs *ChatHubServer) startProcessor(dst chan<- message.MessageBox) (chan<- message.MessageBox, []*processorUnit) {
-	processorList := config.Cfg.GetStringSlice("chat_process")
-	if len(processorList) <= 0 {
-		panic("no process is configured")
-	}
-	duts := make([]*processorUnit, 0, len(processorList))
+	duts := make([]*processorUnit, 0, len(cs.process))
 	var src chan message.MessageBox
-	for _, item := range processorList {
-		if val, ok := process.Process[item]; ok {
-			src = make(chan message.MessageBox, 100)
-			duts = append(duts, &processorUnit{
-				src:     src,
-				dst:     dst,
-				Process: val(),
-			})
-			dst = src
-		}
+	for _, item := range cs.process {
+		src = make(chan message.MessageBox, 100)
+		duts = append(duts, &processorUnit{
+			src:     src,
+			dst:     dst,
+			Process: item,
+		})
+		dst = src
 	}
 	return src, duts
 }
@@ -96,17 +87,15 @@ func (cs *ChatHubServer) startInput(dst chan<- message.MessageBox) *inputUnit {
 }
 
 func (cs *ChatHubServer) runOutput(outUnit *outputUnit) {
-	for _, output := range outUnit.Output {
-		go func(output imchat.MessageOutPut) {
-			for {
-				select {
-				case <-cs.ctx.Done():
-					return
-				case val := <-outUnit.src:
-					output.Write(val)
-				}
+	for msg := range outUnit.src {
+		select {
+		case <-cs.ctx.Done():
+			return
+		default:
+			for _, out := range outUnit.Output {
+				out.Write(msg)
 			}
-		}(output)
+		}
 	}
 }
 
@@ -136,11 +125,6 @@ func (cs *ChatHubServer) runProcessor(proUnit []*processorUnit) {
 
 func (cs *ChatHubServer) runInput(inUnit *inputUnit) {
 	for val := range inUnit.input {
-		msg, err := message.NewMsgBoxWithByte(val)
-		if err != nil {
-			logger.Log.Errorf("input read bytes err: %v", err)
-			continue
-		}
-		inUnit.dst <- msg
+		inUnit.dst <- val
 	}
 }

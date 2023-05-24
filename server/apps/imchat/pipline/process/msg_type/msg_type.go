@@ -4,19 +4,40 @@ import (
 	"chat/apps/imchat"
 	"chat/apps/imchat/message"
 	"chat/apps/imchat/pipline/process"
+	"chat/toybox/components/logger"
 	"fmt"
 )
 
-type MsgType struct {
+type MsgTypeProcess struct {
 }
 
 func init() {
-	process.Add("msgType", func() imchat.MessageProcess {
-		return &MsgType{}
+	process.Add("msg_type", func() imchat.MessageProcess {
+		return &MsgTypeProcess{}
 	})
 }
 
-func (jp *MsgType) Process(msg message.MessageBox) (message.MessageBox, error) {
-	fmt.Println("这里处理消息中的类型")
+func (jp *MsgTypeProcess) Process(msg message.MessageBox) (message.MessageBox, error) {
+	switch msg.MsgType() {
+	case message.AuthMsg:
+		m, _ := message.NewMsgBoxWithString("auth type is not yet supported", message.SysMsg, message.SysMsg, []string{msg.MsgSouce()})
+		return m, nil
+	case message.SysMsg:
+		return handlerSysMsg(msg)
+	case message.TextMsg:
+		return handlerTextMsg(msg)
+	default:
+		errMsg := fmt.Sprintf("unknown message type %v", msg.MsgType())
+		logger.Log.Errorf(errMsg)
+		m, _ := message.NewMsgBoxWithString(errMsg, message.SysMsg, message.SysMsg, []string{msg.MsgSouce()})
+		return m, nil
+	}
+}
+
+func handlerTextMsg(msg message.MessageBox) (message.MessageBox, error) {
+	return msg, nil
+}
+
+func handlerSysMsg(msg message.MessageBox) (message.MessageBox, error) {
 	return msg, nil
 }

@@ -2,6 +2,12 @@ package message
 
 import "encoding/json"
 
+const (
+	SysMsg  = "sys"
+	TextMsg = "text"
+	AuthMsg = "auth"
+)
+
 type MessageBox interface {
 	Body() []byte
 

@@ -32,7 +32,7 @@ type ChatHubServer struct {
 	register   chan *Client
 	unregister chan *Client
 
-	broadcastInput  chan []byte
+	broadcastInput  chan message.MessageBox
 	broadcastOutput chan message.MessageBox
 
 	RequiredComponents []string
@@ -45,13 +45,17 @@ func init() {
 			clients:            make(map[string]*Client),
 			register:           make(chan *Client),
 			unregister:         make(chan *Client),
-			broadcastInput:     make(chan []byte, 100),
+			broadcastInput:     make(chan message.MessageBox, 100),
 			broadcastOutput:    make(chan message.MessageBox, 100),
 			RequiredComponents: []string{"config", "logger"},
 		}
 		cs.ctx, cs.cancel = context.WithCancel(context.Background())
 		return cs
 	})
+}
+
+func SendMessage(msg message.MessageBox) {
+	hub.broadcastOutput <- msg
 }
 
 func GetChatHub() *ChatHubServer {
@@ -77,10 +81,20 @@ func (cs *ChatHubServer) joinClients(client *Client) error {
 	defer cs.m.RUnlock()
 	if _, ok := cs.clients[client.Id]; !ok {
 		cs.clients[client.Id] = client
-		logger.Log.Infof("client %v join to connect", client.Id)
+
+		sysmsg := fmt.Sprintf("client %v join to connect", client.Id)
+		logger.Log.Infof(sysmsg)
+
+		msg, err := message.NewMsgBoxWithString(sysmsg, message.SysMsg, message.SysMsg, []string{""})
+		if err != nil {
+			logger.Log.Warnf("create sys msg err: %v", err)
+			return nil
+		}
+
+		cs.broadcastInput <- msg
 		return nil
 	}
-	return fmt.Errorf("user %v already exists", client.Id)
+	return fmt.Errorf("user %v already join", client.Id)
 }
 
 func (cs *ChatHubServer) removeClient(client *Client) error {
@@ -88,24 +102,38 @@ func (cs *ChatHubServer) removeClient(client *Client) error {
 	defer cs.m.RUnlock()
 	if _, ok := cs.clients[client.Id]; ok {
 		delete(cs.clients, client.Id)
-		logger.Log.Infof("client %v exit to connect", client.Id)
+
+		sysmsg := fmt.Sprintf("client %v exit to connect", client.Id)
+		logger.Log.Infof(sysmsg)
+
+		msg, err := message.NewMsgBoxWithString(sysmsg, message.SysMsg, message.SysMsg, []string{""})
+		if err != nil {
+			logger.Log.Warnf("create sys msg err: %v", err)
+			return nil
+		}
+
+		cs.broadcastInput <- msg
 		return nil
 	}
-	return fmt.Errorf("user %v already not exists", client.Id)
+	logger.Log.Warnf("user %v already not exists", client.Id)
+	// return fmt.Errorf("user %v already not exists", client.Id)
+	return nil
 }
 
 func (cs *ChatHubServer) loadProcess() error {
 	// 加载配置，获取处理器顺序
 	processList := config.Cfg.GetStringSlice("chat_process")
 	cs.process = make([]imchat.MessageProcess, 0, len(processList))
-	for _, p := range processList {
-		processCreator, ok := process.Process[p]
+
+	// 管道装载从output端开始加载，进行倒叙排列
+	for i := len(processList) - 1; i >= 0; i-- {
+		processCreator, ok := process.Process[processList[i]]
 		if !ok {
-			fmt.Printf("processor %v not loaded correctly\n", p)
+			fmt.Printf("processor %v not loaded correctly\n", processList[i])
 			continue
 		}
 		cs.process = append(cs.process, processCreator())
-		fmt.Printf("loaded processor %v\n", p)
+		fmt.Printf("loaded processor %v\n", processList[i])
 	}
 	return nil
 }
@@ -152,9 +180,15 @@ func (cs *ChatHubServer) Start() error {
 				continue
 			}
 		case body := <-cs.broadcastOutput:
-			for _, target := range body.Targets() {
-				if _, ok := cs.clients[target]; ok {
-					cs.clients[target].send <- body.String()
+			if body.MsgType() == message.SysMsg {
+				for _, client := range cs.clients {
+					client.send <- body.String()
+				}
+			} else {
+				for _, target := range body.Targets() {
+					if _, ok := cs.clients[target]; ok {
+						cs.clients[target].send <- body.String()
+					}
 				}
 			}
 		}

@@ -144,8 +144,14 @@ func (cc *ConfigComponent) GetBool(key string) bool {
 }
 
 func (cc *ConfigComponent) GetStringSlice(key string) []string {
-	if res, ok := common.GetStringSlice(cc.appConfig, key); ok {
-		return res
+	if res, ok := common.GetInterfaceSlice(cc.appConfig, key); ok {
+		r := make([]string, 0, len(res))
+		for _, rs := range res {
+			if val, ok := rs.(string); ok {
+				r = append(r, val)
+			}
+		}
+		return r
 	}
 	return nil
 }

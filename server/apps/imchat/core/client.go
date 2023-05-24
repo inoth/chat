@@ -2,9 +2,9 @@ package core
 
 import (
 	"bytes"
+	"chat/apps/imchat/message"
 	"chat/toybox/components/logger"
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -49,6 +49,7 @@ func NewClient(uid string, hub *ChatHubServer, w http.ResponseWriter, r *http.Re
 		conn: wsConn,
 		send: make(chan []byte),
 	}
+	hub.register <- c
 	return c, nil
 }
 
@@ -70,16 +71,21 @@ func (c *Client) readPump(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		default:
-			_, message, err := c.conn.ReadMessage()
+			_, msg, err := c.conn.ReadMessage()
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-					logger.Log.Warn(fmt.Sprintf("err: %v", err))
+					logger.Log.Errorf("err: %v", err)
 					return
 				}
 				return
 			}
-			message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-			c.hub.broadcastInput <- message
+			msg = bytes.TrimSpace(bytes.Replace(msg, newline, space, -1))
+			m, err := message.NewMsgBoxWithByte(msg)
+			if err != nil {
+				logger.Log.Error(err)
+				continue
+			}
+			c.hub.broadcastInput <- m
 		}
 	}
 }
