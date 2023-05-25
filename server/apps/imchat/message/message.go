@@ -12,9 +12,14 @@ type MessageBox interface {
 	Body() []byte
 
 	Targets() []string
+
 	MsgType() string
 	MsgSouce() string
 	String() []byte
+
+	SetTargets(string, ...string)
+	SetMsg(string, string)
+	SetSource(string)
 }
 
 type MessageBody struct {
@@ -44,6 +49,20 @@ func (mb *MessageBody) MsgSouce() string  { return mb.MessageSource }
 func (mb *MessageBody) String() []byte {
 	buf, _ := json.Marshal(mb)
 	return buf
+}
+
+func (mb *MessageBody) SetTargets(targetType string, targets ...string) {
+	mb.TargetType = targetType
+	mb.SendTargets = targets
+}
+
+func (mb *MessageBody) SetSource(uid string) {
+	mb.MessageSource = uid
+}
+
+func (mb *MessageBody) SetMsg(msgType, msg string) {
+	mb.MessageType = msgType
+	mb.SendBody = msg
 }
 
 // 用于从 websocket 字节中读取内容进行序列化

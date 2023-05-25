@@ -85,6 +85,7 @@ func (c *Client) readPump(ctx context.Context) {
 				logger.Log.Error(err)
 				continue
 			}
+			m.SetSource(c.Id)
 			c.hub.broadcastInput <- m
 		}
 	}
