@@ -27,6 +27,22 @@ type Result struct {
 	Data      interface{} `json:"data"`
 }
 
+type RowData struct {
+	Row   []interface{} `json:"row"`
+	Total int64         `json:"total"`
+	Index int           `json:"index"`
+	Size  int           `json:"size"`
+}
+
+func NewRowData(index, size int, total int64, row ...interface{}) RowData {
+	return RowData{
+		Index: index,
+		Size:  size,
+		Total: total,
+		Row:   row,
+	}
+}
+
 func (r Result) String() string {
 	buf, _ := json.Marshal(r)
 	return string(buf)

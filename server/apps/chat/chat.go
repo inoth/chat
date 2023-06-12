@@ -61,6 +61,7 @@ func (cs *ChatServer) Start() error {
 	{
 		room.POST("", controller.CreateRoom)
 		room.PATCH("", controller.UpdateRoom)
+		room.DELETE("", controller.RemoveRoom)
 		room.GET("/:roomId", controller.GetRoom)
 		room.GET("", controller.GetRoomList)
 

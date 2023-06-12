@@ -7,17 +7,18 @@ import (
 )
 
 type Room struct {
-	Id          string    `gorm:"primaryKey" json:"id"`
+	Id          string    `gorm:"primaryKey;column:id" json:"id"`
 	Uid         string    `gorm:"column:uid" json:"-"`
-	Owner       RoomOwner `gorm:"-" json:"owner"`
-	RoomName    string    `gorm:"column:roomName" json:"roomName"`
-	Desc        string    `gorm:"column:description" json:"desc"`
-	Passwd      string    `gorm:"column:password" json:"passwd"`
-	UserLimit   int       `gorm:"column:userLimit" json:"userLimit"`
-	CreatedTime time.Time `gorm:"column:createdTime" json:"createdTime"`
+	Owner       OwnerInfo `gorm:"-" json:"owner"`
+	Name        string    `gorm:"column:name" json:"name"`
+	Desc        string    `gorm:"column:desc" json:"desc"`
+	Passwd      string    `gorm:"column:passwd" json:"passwd"`
+	Limit       int       `gorm:"column:limit" json:"limit"`
+	Tags        string    `gorm:"column:tags" json:"tags"`
+	CreatedTime time.Time `gorm:"column:created_time" json:"createdTime"`
 }
 
-type RoomOwner struct {
+type OwnerInfo struct {
 	Id       string `json:"id"`
 	NickName string `json:"nickName"`
 	Avatar   string `json:"avatar"`

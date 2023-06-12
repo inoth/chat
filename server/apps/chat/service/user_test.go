@@ -1,32 +1,30 @@
 package service
 
 import (
-	"reflect"
+	"fmt"
 	"testing"
 )
 
 func TestGetUserInfo(t *testing.T) {
+	initComponents()
+
 	type args struct {
 		userId string
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    *model.UserInfo
-		wantErr bool
+		args args
 	}{
 		// TODO: Add test cases.
+		{args: args{
+			userId: "test001",
+		}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetUserInfo(tt.args.userId)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetUserInfo() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetUserInfo() got = %v, want %v", got, tt.want)
-			}
-		})
+		got, err := GetUserInfo(tt.args.userId)
+		if err != nil {
+			t.Errorf("GetUserInfo() error = %v", err)
+			return
+		}
+		fmt.Printf("GetUserInfo() => %+v", got)
 	}
 }

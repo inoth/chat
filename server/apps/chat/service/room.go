@@ -4,6 +4,7 @@ import (
 	"chat/apps/chat/model"
 	"chat/apps/chat/model/request"
 	"chat/toybox/common"
+	"chat/toybox/common/dbutil"
 	"chat/toybox/components/mysql"
 	"chat/toybox/components/redis"
 	"context"
@@ -34,16 +35,17 @@ func CreateRoom(uid, nickName, avatar string, req request.RoomRequest) (*model.R
 		return &res, nil
 	}
 	addRoom := &model.Room{
-		Owner: model.RoomOwner{
+		Owner: model.OwnerInfo{
 			Id:       uid,
 			NickName: nickName,
 			Avatar:   avatar,
 		},
-		Uid:       uid,
-		RoomName:  req.RoomName,
-		Desc:      req.Desc,
-		Passwd:    req.Passwd,
-		UserLimit: req.UserLimit,
+		Uid:    uid,
+		Name:   req.Name,
+		Desc:   req.Desc,
+		Passwd: req.Passwd,
+		Limit:  req.Limit,
+		Tags:   req.Tags,
 	}
 	addRoom.Id = common.RandString(16)
 	addRoom.CreatedTime = time.Now()
@@ -77,4 +79,28 @@ func QueryRoomById(rid string) (*model.Room, error) {
 		return nil, err
 	}
 	return &res, nil
+}
+
+func QueryRoomList(req request.RoomQueryRequest) ([]model.Room, int64, error) {
+	query := model.Room{
+		Id:   req.Rid,
+		Name: req.Name,
+	}
+	res, total, err := dbutil.SelectListAndTotal(mysql.Mysql.DB(), query, dbutil.Paginate(req.Index, req.Size))
+	setOwnerInfo(&res)
+	return res, total, err
+}
+
+func setOwnerInfo(rooms *[]model.Room) {
+	for i := 0; i < len(*rooms); i++ {
+		user, err := getUserInfoByCache((*rooms)[i].Uid)
+		if err != nil {
+			continue
+		}
+		(*rooms)[i].Owner = model.OwnerInfo{
+			Id:       user.Id,
+			NickName: user.NickName,
+			Avatar:   user.Avatar,
+		}
+	}
 }

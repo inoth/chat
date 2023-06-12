@@ -53,6 +53,14 @@ func (tb *ToyBox) init() error {
 	return nil
 }
 
+func (tb *ToyBox) InitComponents() {
+	err := tb.init()
+	if err != nil {
+		panic(err)
+	}
+	tb.initComponents()
+}
+
 func (tb *ToyBox) Run() {
 	err := tb.init()
 	if err != nil {

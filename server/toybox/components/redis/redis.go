@@ -11,6 +11,10 @@ import (
 	gredis "github.com/go-redis/redis/v8"
 )
 
+const (
+	Nil = gredis.Nil
+)
+
 var (
 	componentName = "redis"
 	redisOnce     sync.Once

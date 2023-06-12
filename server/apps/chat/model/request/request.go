@@ -6,12 +6,21 @@ type LoginRequest struct {
 }
 
 type RoomRequest struct {
-	RoomName  string `json:"roomName"`
-	UserLimit int    `json:"userLimit"`
-	Passwd    string `json:"passwd"`
-	Desc      string `json:"desc"`
+	Rid    string `json:"rid"`
+	Name   string `json:"name"`
+	Limit  int    `json:"limit"`
+	Passwd string `json:"passwd"` // default: nil
+	Desc   string `json:"desc"`
+	Tags   string `json:"tags"`
 }
 
 type RoomQueryRequest struct {
-	RoomId string `query:"roomId"`
+	Rid  string `query:"rid"`
+	Name string `query:"name"`
+	Page
+}
+
+type Page struct {
+	Index int `query:"i"`
+	Size  int `query:"s"`
 }
