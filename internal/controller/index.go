@@ -16,7 +16,7 @@ func NewIndexController() *IndexController {
 }
 
 func (ic *IndexController) Prefix() string {
-	return ""
+	return "/api"
 }
 
 func (ic *IndexController) Middlewares() []gin.HandlerFunc {
