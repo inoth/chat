@@ -1,11 +1,11 @@
 package controller
 
 import (
+	"chat/static"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/inoth/toybox/ginserver"
-	"github.com/inoth/toybox/util/file"
 )
 
 type IndexController struct {
@@ -30,7 +30,7 @@ func (ic *IndexController) Routers() []ginserver.Router {
 }
 
 func (ic *IndexController) ChatHome(c *gin.Context) {
-	buf, err := file.ReadFile("static/index.html")
+	buf, err := static.StaticIndex.ReadFile("index.html")
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
