@@ -1,22 +1,25 @@
 package controller
 
 import (
+	"chat/internal/service"
 	"fmt"
 
 	"github.com/inoth/toybox/wsserver"
 )
-
-var clientIds = make([]string, 0)
 
 type body struct {
 	ID   string `json:"id"`
 	Body string `json:"body"`
 }
 
-type MessageController struct{}
+type MessageController struct {
+	svr *service.ChatService
+}
 
-func NewMessageController() *MessageController {
-	return &MessageController{}
+func NewMessageController(svr *service.ChatService) *MessageController {
+	return &MessageController{
+		svr: svr,
+	}
 }
 
 func (m *MessageController) Handler() wsserver.HandlerFunc {
@@ -29,7 +32,7 @@ func (m *MessageController) Handler() wsserver.HandlerFunc {
 			return
 		}
 		if data.ID == "all" {
-			for _, id := range clientIds {
+			for _, id := range m.svr.GetClientId() {
 				c.String(id, data.Body)
 			}
 		} else {

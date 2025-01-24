@@ -18,8 +18,8 @@
         }
 
         #chat-container {
-            width: 400px;
-            height: 600px;
+            width: 50%;
+            height: 100%;
             border: 1px solid #ccc;
             border-radius: 8px;
             background-color: #fff;
@@ -32,6 +32,8 @@
             flex: 1;
             padding: 10px;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
 
         #message-input {
@@ -63,18 +65,55 @@
 
         .message {
             margin-bottom: 10px;
-            padding: 8px;
-            border-radius: 4px;
+            max-width: 70%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            position: relative;
         }
 
         .sent {
             background-color: #dcf8c6;
-            text-align: right;
+            align-self: flex-end;
+        }
+
+        .sent::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            right: -10px;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #dcf8c6;
+            border-bottom: 0;
+            border-right: 0;
+            margin-left: -5px;
+            margin-bottom: -10px;
         }
 
         .received {
             background-color: #e5e5ea;
-            text-align: left;
+            align-self: flex-start;
+        }
+
+        .received::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: -10px;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top-color: #e5e5ea;
+            border-bottom: 0;
+            border-left: 0;
+            margin-left: -5px;
+            margin-bottom: -10px;
+        }
+
+        .message-sender {
+            font-weight: bold;
+            margin-bottom: 4px;
         }
     </style>
 </head>
@@ -89,6 +128,16 @@
     </div>
 
     <script>
+        function generateRandomId() {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let id = '';
+            for (let i = 0; i < 8; i++) {
+                const randomIndex = Math.floor(Math.random() * characters.length);
+                id += characters.charAt(randomIndex);
+            }
+            return id;
+        }
+
         // 请将这里的地址替换为你的 WebSocket 服务地址
         const socket = new WebSocket('ws://localhost:9060/api/ws');
 
@@ -96,21 +145,28 @@
         const messageInput = document.getElementById('message');
         const sendButton = document.getElementById('send-button');
         const chatMessages = document.getElementById('chat-messages');
+        const id = generateRandomId();
 
         // 连接成功时触发
-        socket.onopen = function () {
+        socket.onopen = function (event) {
             console.log('Connected to the WebSocket server');
+            appendMessage('Server', id + ' Connected to the WebSocket server', 'received');
         };
 
         // 接收到消息时触发
         socket.onmessage = function (event) {
-            const message = event.data;
-            appendMessage(message, 'received');
+            const data = JSON.parse(event.data);
+            const sender = data.id;
+            const message = data.body;
+            if (sender != id) {
+                appendMessage(sender, message, 'received');    
+            }
         };
 
         // 连接关闭时触发
         socket.onclose = function () {
             console.log('Disconnected from the WebSocket server');
+            appendMessage('Server', 'Disconnected from the WebSocket server', 'received');
         };
 
         // 发送消息
@@ -119,20 +175,33 @@
             if (message.trim() !== '') {
                 const body = JSON.stringify({
                     "id": "all",
-                    "body": message
-                })
+                    "body": JSON.stringify({
+                        "id": id,
+                        "body": message
+                    })
+                });
                 socket.send(body);
-                appendMessage(message, 'sent');
+                appendMessage("You", message, 'sent');
                 messageInput.value = '';
             }
         }
 
         // 追加消息到聊天窗口
-        function appendMessage(message, type) {
+        function appendMessage(sender, message, type) {
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add('message', type);
+
+            const senderElement = document.createElement('div');
+            senderElement.classList.add('message-sender');
+            senderElement.textContent = sender;
+
             const messageElement = document.createElement('div');
-            messageElement.classList.add('message', type);
             messageElement.textContent = message;
-            chatMessages.appendChild(messageElement);
+
+            messageContainer.appendChild(senderElement);
+            messageContainer.appendChild(messageElement);
+
+            chatMessages.appendChild(messageContainer);
             // 滚动到最新消息
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }

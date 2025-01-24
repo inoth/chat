@@ -9,6 +9,7 @@ package main
 import (
 	"chat/internal/controller"
 	"chat/internal/provider"
+	"chat/internal/service"
 	"github.com/inoth/toybox"
 	"github.com/inoth/toybox/config"
 )
@@ -16,9 +17,10 @@ import (
 // Injectors from wire.go:
 
 func initApp(conf config.ConfigMate) *toybox.ToyBox {
-	messageController := controller.NewMessageController()
+	chatService := service.NewChatService()
+	messageController := controller.NewMessageController(chatService)
 	websocketServer := provider.NewWebsocketServer(messageController)
-	chatController := controller.NewChatController(websocketServer)
+	chatController := controller.NewChatController(websocketServer, chatService)
 	indexController := controller.NewIndexController()
 	ginHttpServer := provider.NewHttpServer(chatController, indexController)
 	toyBox := newApp(conf, ginHttpServer, websocketServer)
