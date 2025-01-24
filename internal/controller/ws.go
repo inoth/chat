@@ -24,7 +24,7 @@ func NewMessageController(svr *service.ChatService) *MessageController {
 
 func (m *MessageController) Handler() wsserver.HandlerFunc {
 	return func(c *wsserver.Context) {
-		fmt.Printf("%v\n", string(c.Body()))
+		// fmt.Printf("%v\n", string(c.Body()))
 		var data body
 		err := c.BindJson(&data)
 		if err != nil {

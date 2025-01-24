@@ -1,0 +1,7 @@
+version: '3'
+services:
+  go-chat:
+    build: .
+    ports:
+      - "9060:9060"
+    restart: always
